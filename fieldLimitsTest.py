@@ -11,7 +11,6 @@ def makeNewJsonObj(idInt, numFields, startNum):
     thisMap['id'] = idInt
 
     for field in range(numFields):
-
         thisMap['x-manyFieldsTest-' + hex(startNum)] = 'x-manyFieldsTest-' + hex(startNum)
         startNum += 1
 
@@ -48,18 +47,18 @@ def main():
 
             newDocJson = makeNewJsonObj(counter, fieldsPerDoc, lastFieldNum)
             #increment doc id counter
-            counter    += fieldsPerDoc
+            counter    += 1
             #decrement fields left to create
             fieldsLeft -= fieldsPerDoc
             #increment lastFieldNum by num fields per doc
             lastFieldNum += fieldsPerDoc
-
+            
             submitList.append(newDocJson)
 
         else:
             newDocJson = makeNewJsonObj(counter, fieldsLeft, lastFieldNum)
             #increment doc id counter
-            counter    += fieldsPerDoc
+            counter    += 1
             #decrement fields left to create
             fieldsLeft -= fieldsLeft
 
