@@ -1,5 +1,4 @@
 import requests
-import sys
 import json
 from itertools import izip, chain, repeat
 import sys, getopt
