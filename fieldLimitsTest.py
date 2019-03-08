@@ -7,17 +7,17 @@ def readFileToText(filePath):
 
 def makeNewJsonObj(idInt, numFields, startNum):
 
-    returnList = []
+    thisMap = {}
+    thisMap['id'] = idInt
 
     for field in range(numFields):
-        thisMap = {}
-        thisMap['id'] = idInt
+
         thisMap['x-manyFieldsTest-' + hex(startNum)] = 'x-manyFieldsTest-' + hex(startNum)
         startNum += 1
-        idInt    += 1
-        returnList.append(thisMap)
 
-    return returnList
+    idInt += 1
+
+    return thisMap
 
 def getConfigMap(filePath):
     configMap = json.loads(readFileToText(filePath))
@@ -61,7 +61,7 @@ def main():
             #increment doc id counter
             counter    += fieldsPerDoc
             #decrement fields left to create
-            fieldsLeft -= fieldsPerDoc
+            fieldsLeft -= fieldsLeft
 
             submitList.append(newDocJson)
 
