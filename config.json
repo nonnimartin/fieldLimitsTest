@@ -6,6 +6,6 @@
     "totalFields":33,
     "docsPerSubmission" : 10,
     "fieldsPerDoc" : 2,
-    "commit": true,
+    "commit": false,
     "merge" : false
 }

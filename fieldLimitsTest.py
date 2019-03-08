@@ -2,6 +2,7 @@ import requests
 import sys
 import json
 from itertools import izip, chain, repeat
+import sys, getopt
 
 def readFileToText(filePath):
     f = open(filePath, "r")
@@ -64,6 +65,16 @@ def removeNullValues(thisList):
 
 def main():
 
+    # get CLI args
+    cmd_args   = sys.argv
+    flagCommit = False
+
+    # Go through CLI options, where argument value = cmd_args[opt + 1]
+    for opt in range(len(cmd_args)):
+        #this flag will set commit to true, regardless of config
+        if cmd_args[opt] == '-c':
+            flagCommit = True
+
     submitList   = []
     configMap    = getConfigMap('./config.json')
     hostname     = configMap['hostname']
@@ -74,7 +85,13 @@ def main():
     fieldsPerDoc = configMap['fieldsPerDoc']
     totalFields  = configMap['totalFields']
     merge        = configMap['merge']
-    commit       = configMap['commit']
+
+    #flag -c commit overrides config
+    if flagCommit:
+        commit = True
+    else:
+        commit       = configMap['commit']
+
     counter      = 1
     fieldsLeft   = totalFields
     lastFieldNum = 0
