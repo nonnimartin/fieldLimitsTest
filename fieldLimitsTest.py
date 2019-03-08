@@ -3,11 +3,11 @@ import json
 from itertools import izip, chain, repeat
 import sys, getopt
 
-def readFileToText(filePath):
+def read_file_to_text(filePath):
     f = open(filePath, "r")
     return f.read()
 
-def makeNewJsonObj(idInt, numFields, startNum):
+def make_new_json_obj(idInt, numFields, startNum):
 
     #construct json object for update to solr
     thisMap = {}
@@ -28,11 +28,11 @@ def first_lower(s):
    else:
       return s[0].lower() + s[1:]
 
-def getConfigMap(filePath):
+def get_config_map(filePath):
     #read configuration file to map
-    return json.loads(readFileToText(filePath))
+    return json.loads(read_file_to_text(filePath))
 
-def updateCollection(endpoint, docsJson):
+def update_collection(endpoint, docsJson):
 
     #create and send http request to desired endpoint
     headersObj = {'content-type': 'application/json'}
@@ -56,7 +56,7 @@ def grouper(docsPerSubmission, docObjects, padvalue=None):
     #group sets of objects into arrays of chosen length
     return izip(*[chain(docObjects, repeat(padvalue, docsPerSubmission - 1))]* docsPerSubmission)
 
-def removeNullValues(thisList):
+def remove_null_values(thisList):
 
     #remove all null values from list
     newList = list()
@@ -79,7 +79,7 @@ def main():
             flagCommit = True
 
     submitList   = []
-    configMap    = getConfigMap('./config.json')
+    configMap    = get_config_map('./config.json')
     hostname     = configMap['hostname']
     protocol     = configMap['protocol']
     port         = configMap['port']
@@ -103,7 +103,7 @@ def main():
 
         if fieldsLeft >= fieldsPerDoc:
 
-            newDocJson = makeNewJsonObj(counter, fieldsPerDoc, lastFieldNum)
+            newDocJson = make_new_json_obj(counter, fieldsPerDoc, lastFieldNum)
             #increment doc id counter
             counter    += 1
             #decrement fields left to create
@@ -114,7 +114,7 @@ def main():
             submitList.append(newDocJson)
 
         else:
-            newDocJson = makeNewJsonObj(counter, fieldsLeft, lastFieldNum)
+            newDocJson = make_new_json_obj(counter, fieldsLeft, lastFieldNum)
             #increment doc id counter
             counter    += 1
             #decrement fields left to create
@@ -128,15 +128,15 @@ def main():
     for group in groupedList:
 
         #remove any null values from group
-        thisGroup = removeNullValues(group)
+        thisGroup = remove_null_values(group)
 
         #serialize list of docs to json
         thisPayload  = json.dumps(thisGroup)
         thisEndpoint = protocol + '://' + hostname + ':' + str(port) + '/solr/' + collection + '/update?commit=' + first_lower(str(commit))
-        updateCollection(thisEndpoint, thisPayload)
+        update_collection(thisEndpoint, thisPayload)
 
-        print ''
-        print 'Done'
+    print ''
+    print 'Done'
 
 if __name__ == '__main__':
     main()
