@@ -1,0 +1,8 @@
+{
+    "hostname":"localhost",
+    "protocol":"http",
+    "totalFields":20,
+    "docsPerSubmission" : 10,
+    "fieldsPerDoc" : 2,
+    "merge" : false
+}
