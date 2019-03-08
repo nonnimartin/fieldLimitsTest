@@ -9,6 +9,7 @@ def readFileToText(filePath):
 
 def makeNewJsonObj(idInt, numFields, startNum):
 
+    #construct json object for update to solr
     thisMap = {}
     thisMap['id'] = idInt
 
@@ -21,16 +22,19 @@ def makeNewJsonObj(idInt, numFields, startNum):
     return thisMap
 
 def first_lower(s):
+   #make first letter of string lowercase
    if len(s) == 0:
       return s
    else:
       return s[0].lower() + s[1:]
 
 def getConfigMap(filePath):
-    configMap = json.loads(readFileToText(filePath))
-    return configMap
+    #read configuration file to map
+    return json.loads(readFileToText(filePath))
 
 def updateCollection(endpoint, docsJson):
+
+    #create and send http request to desired endpoint
     headersObj = {'content-type': 'application/json'}
 
     try:
@@ -44,11 +48,14 @@ def updateCollection(endpoint, docsJson):
     print "Response status code: " + str(r.status_code)
 
 def grouper(docsPerSubmission, docObjects, padvalue=None):
+
+    #group sets of objects into arrays of chosen length
     return izip(*[chain(docObjects, repeat(padvalue, docsPerSubmission - 1))]* docsPerSubmission)
 
 def removeNullValues(thisList):
-    newList = list()
+
     #remove all null values from list
+    newList = list()
     for i in thisList:
         if i is not None:
             newList.append(i)
@@ -56,8 +63,6 @@ def removeNullValues(thisList):
     return newList
 
 def main():
-
-
 
     submitList   = []
     configMap    = getConfigMap('./config.json')
@@ -110,6 +115,8 @@ def main():
         thisEndpoint = protocol + '://' + hostname + ':' + str(port) + '/solr/' + collection + '/update?commit=' + first_lower(str(commit))
         updateCollection(thisEndpoint, thisPayload)
 
+        print ''
+        print 'Done'
 
 if __name__ == '__main__':
     main()
