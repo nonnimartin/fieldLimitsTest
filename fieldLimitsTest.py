@@ -38,6 +38,8 @@ def updateCollection(endpoint, docsJson):
     #create and send http request to desired endpoint
     headersObj = {'content-type': 'application/json'}
 
+    print 'sending data to endpoint with ' + str(len(json.loads(docsJson))) + ' documents'
+
     try:
         r = requests.post(endpoint, data=docsJson, headers=headersObj)
         r.raise_for_status()
@@ -47,6 +49,8 @@ def updateCollection(endpoint, docsJson):
 
     print "Sent data to endpoint: " + endpoint
     print "Response status code: " + str(r.status_code)
+    print ""
+    print "============================================================="
 
 def grouper(docsPerSubmission, docObjects, padvalue=None):
 

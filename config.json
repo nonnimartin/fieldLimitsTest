@@ -3,8 +3,8 @@
     "protocol":"http",
     "port": 8983,
     "collection" : "Test_API",
-    "totalFields":33,
-    "docsPerSubmission" : 10,
+    "totalFields":16000,
+    "docsPerSubmission" : 1000,
     "fieldsPerDoc" : 2,
     "commit": false,
     "merge" : false
