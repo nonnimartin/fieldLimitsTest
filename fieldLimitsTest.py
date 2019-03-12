@@ -1,7 +1,8 @@
 import requests
 import json
 from itertools import izip, chain, repeat
-import sys, getopt
+import sys
+import enlighten
 
 def read_file_to_text(filePath):
     f = open(filePath, "r")
@@ -21,6 +22,58 @@ def make_new_json_obj(idInt, numFields, startNum):
 
     return thisMap
 
+def get_latest_docnum(endpoint):
+    #determine the last created doc name
+
+    print 'Getting last Doc Number'
+    for i in range(0, 100):
+        print 'Making request. Trying ' + str(i + 1) + ' times.'
+        try:
+            r = requests.get(endpoint)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print err
+            continue
+        break
+
+    content      = r.content
+    contentMap   = json.loads(content)
+    responses    = contentMap['response']
+    highestNum   = responses['numFound']
+
+    return highestNum
+
+def get_latest_fieldnum(endpoint):
+    #determine the highest hex number and return decimal equivalent
+
+    print 'Getting last Hex Number'
+    for i in range(0, 100):
+        print 'Making request. Trying ' + str(i + 1) + ' times.'
+        try:
+            r = requests.get(endpoint)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print err
+            continue
+        break
+
+    content      = r.content
+    contentMap   = json.loads(content)
+    responses    = contentMap['response']
+    docsList      = responses['docs']
+    highestNum   = 0
+
+    #find highest hex and convert to decimal
+    doc = docsList[0]
+    for field in doc.keys():
+        if field.startswith('x-manyFieldsTest-'):
+            thisNumber = field.split('x-manyFieldsTest-')[1]
+            decNum     = int(thisNumber, 16)
+            if decNum > highestNum:
+                highestNum = decNum
+
+    return highestNum
+
 def first_lower(s):
    #make first letter of string lowercase
    if len(s) == 0:
@@ -39,12 +92,15 @@ def update_collection(endpoint, docsJson):
 
     print 'sending data to endpoint with ' + str(len(json.loads(docsJson))) + ' documents'
 
-    try:
-        r = requests.post(endpoint, data=docsJson, headers=headersObj)
-        r.raise_for_status()
-    except requests.exceptions.HTTPError as err:
-        print err
-        sys.exit(1)
+    for i in range(0, 100):
+        print 'Making request. Trying ' + str(i + 1) + ' times.'
+        try:
+            r = requests.post(endpoint, data=docsJson, headers=headersObj)
+            r.raise_for_status()
+        except requests.exceptions.HTTPError as err:
+            print err
+            continue
+        break
 
     print "Sent data to endpoint: " + endpoint
     print "Response status code: " + str(r.status_code)
@@ -69,14 +125,19 @@ def remove_null_values(thisList):
 def main():
 
     # get CLI args
-    cmd_args   = sys.argv
-    flagCommit = False
+    cmd_args    = sys.argv
+    flagCommit  = False
+    incremental = False
 
     # Go through CLI options, where argument value = cmd_args[opt + 1]
     for opt in range(len(cmd_args)):
         #this flag will set commit to true, regardless of config
         if cmd_args[opt] == '-c':
             flagCommit = True
+        if cmd_args[opt] == '-i':
+            #do incremental creation of field names
+            #starting from last field created
+            incremental  = True
 
     submitList   = []
     configMap    = get_config_map('./config.json')
@@ -98,6 +159,20 @@ def main():
     counter      = 1
     fieldsLeft   = totalFields
     lastFieldNum = 0
+
+    #if incremental mode is enabled, start counter at highest number + 1
+    #and last field num as highest number
+    if incremental:
+        print ''
+        print 'Incremental Mode: '
+        print ''
+        counter      = get_latest_docnum(protocol + '://' + hostname + ':' + str(port) + '/solr/' + collection + '/select?q=*:*') + 1
+        lastFieldNum = get_latest_fieldnum(protocol + '://' + hostname + ':' + str(port) + '/solr/' + collection + '/select?q=id:' + str(counter - 1)) + 1
+        print 'Starting at document id ' + str(counter)
+        print 'Starting at field number ' + str(lastFieldNum)
+        print ''
+        print '============================================================='
+        print ''
 
     while fieldsLeft != 0:
 
@@ -125,8 +200,11 @@ def main():
     #group lists of documents by submit size
     groupedList = list(grouper(docsPerSub, submitList))
 
-    for group in groupedList:
+    #create progress bar
+    pbar = enlighten.Counter(total=len(groupedList), desc='Solr Docs Created', unit='ticks')
 
+    for group in groupedList:
+        pbar.update()
         #remove any null values from group
         thisGroup = remove_null_values(group)
 
