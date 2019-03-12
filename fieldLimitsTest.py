@@ -9,8 +9,8 @@ def read_file_to_text(filePath):
     return f.read()
 
 def make_new_json_obj(idInt, numFields, startNum):
-
     #construct json object for update to solr
+
     thisMap = {}
     thisMap['id'] = idInt
 
@@ -47,6 +47,7 @@ def get_latest_fieldnum(endpoint):
     #determine the highest hex number and return decimal equivalent
 
     print 'Getting last Hex Number'
+
     for i in range(0, 100):
         print 'Making request. Trying ' + str(i + 1) + ' times.'
         try:
@@ -76,6 +77,7 @@ def get_latest_fieldnum(endpoint):
 
 def first_lower(s):
    #make first letter of string lowercase
+
    if len(s) == 0:
       return s
    else:
@@ -83,11 +85,12 @@ def first_lower(s):
 
 def get_config_map(filePath):
     #read configuration file to map
+
     return json.loads(read_file_to_text(filePath))
 
 def update_collection(endpoint, docsJson):
-
     #create and send http request to desired endpoint
+
     headersObj = {'content-type': 'application/json'}
 
     print 'sending data to endpoint with ' + str(len(json.loads(docsJson))) + ' documents'
@@ -108,13 +111,13 @@ def update_collection(endpoint, docsJson):
     print "============================================================="
 
 def grouper(docsPerSubmission, docObjects, padvalue=None):
-
     #group sets of objects into arrays of chosen length
+
     return izip(*[chain(docObjects, repeat(padvalue, docsPerSubmission - 1))]* docsPerSubmission)
 
 def remove_null_values(thisList):
-
     #remove all null values from list
+
     newList = list()
     for i in thisList:
         if i is not None:
@@ -123,8 +126,8 @@ def remove_null_values(thisList):
     return newList
 
 def main():
-
     # get CLI args
+
     cmd_args    = sys.argv
     flagCommit  = False
     incremental = False
@@ -211,6 +214,7 @@ def main():
         #serialize list of docs to json
         thisPayload  = json.dumps(thisGroup)
         thisEndpoint = protocol + '://' + hostname + ':' + str(port) + '/solr/' + collection + '/update?commit=' + first_lower(str(commit))
+        #iterate progress bar
         update_collection(thisEndpoint, thisPayload)
 
     print ''
