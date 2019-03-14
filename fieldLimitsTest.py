@@ -204,7 +204,7 @@ def main():
     groupedList = list(grouper(docsPerSub, submitList))
 
     #create progress bar
-    pbar = enlighten.Counter(total=len(groupedList), desc='Solr Docs Created', unit='ticks')
+    pbar = enlighten.Counter(total=len(groupedList), desc='Making Solr Docs', unit='ticks')
 
     #Loop through groups of  document objects, serialize, and send as post to endpoint
     for group in groupedList:
