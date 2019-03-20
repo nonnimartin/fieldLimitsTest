@@ -27,7 +27,7 @@ def get_latest_docnum(endpoint):
 
     print 'Getting last Doc Number'
     for i in range(0, 100):
-        print 'Making request. Trying ' + str(i + 1) + ' times.'
+        print 'Making request for last doc. Trying ' + str(i + 1) + ' times.'
         try:
             r = requests.get(endpoint)
             r.raise_for_status()
@@ -49,7 +49,7 @@ def get_latest_fieldnum(endpoint):
     print 'Getting last Hex Number'
 
     for i in range(0, 100):
-        print 'Making request. Trying ' + str(i + 1) + ' times.'
+        print 'Making request for latest field. Trying ' + str(i + 1) + ' times.'
         try:
             r = requests.get(endpoint)
             r.raise_for_status()
@@ -68,7 +68,7 @@ def get_latest_fieldnum(endpoint):
     doc = docsList[0]
     for field in doc.keys():
         if field.startswith('x-manyFieldsTest-'):
-            thisNumber = field.split('x-manyFieldsTest-')[1]
+            thisNumber = field.split('x-manyFieldsTest-')[1].split('_')[0]
             decNum     = int(thisNumber, 16)
             if decNum > highestNum:
                 highestNum = decNum
